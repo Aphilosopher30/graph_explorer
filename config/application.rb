@@ -13,6 +13,16 @@ require "action_cable/engine"
 require "sprockets/railtie"
 require "rails/test_unit/railtie"
 
+require 'active_graph/railtie'
+
+
+config.neo4j.session.type = :http
+config.neo4j.session.url = ENV['NEO4J_URL'] || 'http://localhost:7474'
+
+
+
+# config.neo4j.driver.url = 'bolt://localhost:7687'
+
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
