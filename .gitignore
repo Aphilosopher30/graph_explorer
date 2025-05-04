@@ -22,3 +22,7 @@
 
 # Ignore master key for decrypting credentials and more.
 /config/master.key
+
+# Ignore ActiveGraph configurations
+/config/initializers/activegraph.rb
+/config/activegraph.rb
