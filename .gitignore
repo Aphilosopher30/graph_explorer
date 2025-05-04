@@ -24,5 +24,6 @@
 /config/master.key
 
 # Ignore ActiveGraph configurations
+
 /config/initializers/activegraph.rb
-/config/activegraph.rb
+/config/activegraph.yml
