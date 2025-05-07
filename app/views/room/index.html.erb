@@ -1,2 +1,9 @@
 <h1>All Rooms</h1>
-<p>insert list of all rooms</p>
+<!-- <p>insert list of all rooms</p> -->
+<ul>
+  <% @rooms.each do |room| %>
+    <li>
+      <strong><%= room.name %></strong>: <%= "add more info later" %>
+    </li>
+  <% end %>
+</ul>
