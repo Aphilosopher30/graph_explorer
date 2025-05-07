@@ -12,7 +12,7 @@
 /tmp/*
 !/log/.keep
 !/tmp/.keep
-
+/coverage
 
 /node_modules
 /yarn-error.log
@@ -24,6 +24,5 @@
 /config/master.key
 
 # Ignore ActiveGraph configurations
-
 /config/initializers/activegraph.rb
 /config/activegraph.yml
