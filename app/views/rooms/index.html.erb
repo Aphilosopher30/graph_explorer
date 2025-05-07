@@ -3,7 +3,7 @@
 <ul>
   <% @rooms.each do |room| %>
     <li>
-      <strong><%= room.name %></strong>: <%= "add more info later" %>
+      <strong> <%= link_to room.name, room_path(room) %> </strong>: <%= "add more info later" %>
     </li>
   <% end %>
 </ul>
