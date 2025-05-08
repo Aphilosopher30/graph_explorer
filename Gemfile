@@ -38,6 +38,8 @@ gem "thruster", require: false
 
 group :development, :test do
 
+  gem 'pry'
+
   gem 'rspec-rails'
   gem 'simplecov'
 
