@@ -5,5 +5,6 @@ class RoomsController < ApplicationController
 
   def show
     @room = Room.find(params[:id])
-  end
+    @adjacent_rooms = @room.portals
+    end
 end
