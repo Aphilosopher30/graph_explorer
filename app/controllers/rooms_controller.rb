@@ -6,13 +6,9 @@ class RoomsController < ApplicationController
   def show
     @room = Room.find(params[:id])
     @adjacent_rooms = @room.portals
-
-    @matrix = [
-      [1, 1, 1, 1],
-      [1, 1, 1, 1],
-      [1, 1, 0, 1],
-      [1, 1, 1, 1]
-    ]
+# binding.pry
+    floor_plan = JSON.parse(@room.floor_plan)
+    @matrix = floor_plan["arrays"]
 
   end
 
