@@ -22,27 +22,13 @@
 
 <div class="matrix-container" style="border: 2px solid #333; padding: 10px; display: inline-block;">
   <div class="matrix-grid" style="display: grid; grid-template-columns: repeat(<%= @matrix[0].size %>, 50px); gap: 5px;">
-    <% @matrix.each_with_index do |row, row_index| %>
-      <% row.each_with_index do |cell, col_index| %>
-        <div class="square" data-row="<%= row_index %>" data-col="<%= col_index %>" style="width: 50px; height: 50px; background-color: <%= cell == 1 ? '#ffffff' : '#000000' %>;" onclick="toggleSquare(this)"></div>
+    <% @matrix.each do |row| %>
+      <% row.each do |cell| %>
+        <div class="square" style="width: 50px; height: 50px; background-color: <%= cell == 1 ? '#ffffff' : '#000000' %>;"></div>
       <% end %>
     <% end %>
   </div>
 </div>
-
-<script>
-  var matrix = <%= @matrix.to_json %>
-
-  function toggleSquare(square) {
-    const row = square.getAttribute('data-row');
-    const column = square.getAttribute('data-col');
-    matrix[row][column] = matrix[row][column] == 0 ? 1 : 0
-
-    const currentColor = square.style.backgroundColor;
-    square.style.backgroundColor = (currentColor === 'rgb(0, 0, 0)') ? '#ffffff' : '#000000';
-
-  }
-</script>
 
 <style>
   .matrix-grid {
@@ -50,6 +36,5 @@
   }
   .square {
     border: 1px solid #ccc;
-    cursor: pointer;
   }
 </style>
