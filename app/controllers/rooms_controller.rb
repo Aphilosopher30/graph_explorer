@@ -6,6 +6,14 @@ class RoomsController < ApplicationController
   def show
     @room = Room.find(params[:id])
     @adjacent_rooms = @room.portals
+
+    @matrix = [
+      [1, 1, 1, 1],
+      [1, 1, 1, 1],
+      [1, 1, 0, 1],
+      [1, 1, 1, 1]
+    ]
+
   end
 
   def edit
