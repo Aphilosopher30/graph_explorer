@@ -6,7 +6,7 @@ class RoomsController < ApplicationController
   def show
     @room = Room.find(params[:id])
     @adjacent_rooms = @room.portals
-# binding.pry
+
     floor_plan = JSON.parse(@room.floor_plan)
     @matrix = floor_plan["arrays"]
 
@@ -14,6 +14,9 @@ class RoomsController < ApplicationController
 
   def edit
     @room = Room.find(params[:id])
+    floor_plan = JSON.parse(@room.floor_plan)
+    @matrix = floor_plan["arrays"]
+
   end
 
   def update
@@ -28,6 +31,6 @@ class RoomsController < ApplicationController
   private
 
   def room_params
-    params.require(:room).permit(:name, :description)
+    params.require(:room).permit(:name, :description, :floor_plan)
   end
 end
