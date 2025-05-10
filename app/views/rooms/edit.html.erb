@@ -39,12 +39,7 @@
   var matrix = <%= @matrix.to_json %>
 
   document.addEventListener("DOMContentLoaded", function() {
-    console.log(document.getElementById("matrix_data_field").value)
-
     document.getElementById("matrix_data_field").value = JSON.stringify({ arrays: matrix });
-
-    console.log(document.getElementById("matrix_data_field").value)
-
   });
 
   console.log(document.getElementById("matrix_data_field").value)
