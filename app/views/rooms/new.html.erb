@@ -1,0 +1,210 @@
+<h1>Create a New Room</h1>
+
+<%= form_with(model: @room, local: true) do |form| %>
+  <div>
+    <%= form.label :name %>
+    <%= form.text_field :name %>
+  </div>
+
+  <div>
+    <%= form.label :description %>
+    <%= form.text_area :description %>
+  </div>
+
+  <%= form.hidden_field :floor_plan, value: "{\"arrays\": #{@matrix}", id: "matrix_data_field" %>
+
+  <div>
+    <%= form.submit "Create Room" %>
+  </div>
+<% end %>
+
+
+
+<br>
+<br>
+
+<div class="matrix-container" style="border: 2px solid #333; padding: 10px; display: inline-block;">
+  <div id="matrix-grid" class="matrix-grid" style="display: grid; grid-template-columns: repeat(<%= @matrix[0].size %>, 50px); gap: 5px;">
+    <% @matrix.each_with_index do |row, row_index| %>
+      <% row.each_with_index do |cell, col_index| %>
+        <div class="square" data-row="<%= row_index %>" data-col="<%= col_index %>" style="width: 50px; height: 50px; background-color: <%= cell == 1 ? '#ffffff' : '#000000' %>;" onclick="toggleSquare(this)"></div>
+      <% end %>
+    <% end %>
+  </div>
+</div>
+
+<div class="matrix-controls" style="margin-bottom: 10px;">
+  <button type="button" id="rowButton" onclick="handleRowAction()" class="matrix-button">Add Row</button>
+  <button type="button" id="colButton" onclick="handleColumnAction()" class="matrix-button">Add Column</button>
+
+  <div class="toggle-container" style="margin-bottom: 10px;">
+    <input type="checkbox" id="deleteMode" onchange="updateButtonLabels()">
+    <label for="deleteMode">Delete Mode</label>
+  </div>
+</div>
+
+<script>
+  var matrix = <%= @matrix.to_json %>
+
+  document.addEventListener("DOMContentLoaded", function() {
+    document.getElementById("matrix_data_field").value = JSON.stringify({ arrays: matrix });
+  });
+
+  function updateButtonLabels() {
+    const deleteMode = document.getElementById('deleteMode').checked;
+    const rowButton = document.getElementById('rowButton');
+    const colButton = document.getElementById('colButton');
+
+    if (deleteMode) {
+      rowButton.textContent = 'Delete Row';
+      rowButton.classList.add('delete-mode');
+      colButton.textContent = 'Delete Column';
+      colButton.classList.add('delete-mode');
+    } else {
+      rowButton.textContent = 'Add Row';
+      rowButton.classList.remove('delete-mode');
+      colButton.textContent = 'Add Column';
+      colButton.classList.remove('delete-mode');
+    }
+  }
+
+  function handleRowAction() {
+    const deleteMode = document.getElementById('deleteMode').checked;
+    if (deleteMode) {
+      deleteRow();
+    } else {
+      addRow();
+    }
+  }
+
+  function handleColumnAction() {
+    const deleteMode = document.getElementById('deleteMode').checked;
+    if (deleteMode) {
+      deleteColumn();
+    } else {
+      addColumn();
+    }
+  }
+
+  function toggleSquare(square) {
+    const row = square.getAttribute('data-row');
+    const column = square.getAttribute('data-col');
+    matrix[row][column] = matrix[row][column] == 0 ? 1 : 0;
+
+    const currentColor = square.style.backgroundColor;
+    square.style.backgroundColor = (currentColor === 'rgb(0, 0, 0)') ? '#ffffff' : '#000000';
+
+    updateHiddenField();
+  }
+
+  function addRow() {
+    const numCols = matrix[0].length;
+
+    const newRow = Array(numCols).fill(0);
+
+    matrix.push(newRow);
+
+    redrawGrid();
+
+    updateHiddenField();
+  }
+
+  function deleteRow() {
+    if (matrix.length <= 1) {
+      alert("Cannot delete the last row!");
+      return;
+    }
+
+    matrix.pop();
+
+    redrawGrid();
+
+    updateHiddenField();
+  }
+
+  function addColumn() {
+    for (let i = 0; i < matrix.length; i++) {
+      matrix[i].push(0);
+    }
+
+    redrawGrid();
+
+    updateHiddenField();
+  }
+
+  function deleteColumn() {
+    if (matrix[0].length <= 1) {
+      alert("Cannot delete the last column!");
+      return;
+    }
+
+    for (let i = 0; i < matrix.length; i++) {
+      matrix[i].pop();
+    }
+
+    redrawGrid();
+
+    updateHiddenField();
+  }
+
+  function redrawGrid() {
+    const gridElement = document.getElementById('matrix-grid');
+
+    gridElement.style.gridTemplateColumns = `repeat(${matrix[0].length}, 50px)`;
+
+    gridElement.innerHTML = '';
+
+    for (let rowIndex = 0; rowIndex < matrix.length; rowIndex++) {
+      for (let colIndex = 0; colIndex < matrix[rowIndex].length; colIndex++) {
+        const square = document.createElement('div');
+        square.className = 'square';
+        square.setAttribute('data-row', rowIndex);
+        square.setAttribute('data-col', colIndex);
+        square.style.width = '50px';
+        square.style.height = '50px';
+        square.style.backgroundColor = matrix[rowIndex][colIndex] == 1 ? '#ffffff' : '#000000';
+        square.onclick = function() { toggleSquare(this); };
+
+        gridElement.appendChild(square);
+      }
+    }
+  }
+
+  function updateHiddenField() {
+    document.getElementById("matrix_data_field").value = JSON.stringify({ arrays: matrix });
+  }
+</script>
+
+<style>
+  .matrix-grid {
+    margin: 20px auto;
+  }
+  .square {
+    border: 1px solid #ccc;
+    cursor: pointer;
+  }
+  .matrix-button {
+    padding: 8px 16px;
+    margin-right: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .matrix-button:hover {
+    background-color: #45a049;
+  }
+  .delete-mode {
+    background-color: #f44336;
+  }
+  .delete-mode:hover {
+    background-color: #d32f2f;
+  }
+  .toggle-container {
+    margin-bottom: 10px;
+  }
+  .toggle-container input[type="checkbox"] {
+    margin-right: 5px;
+  }
+</style>
