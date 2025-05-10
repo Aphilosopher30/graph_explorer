@@ -28,6 +28,12 @@ class RoomsController < ApplicationController
     end
   end
 
+  def new
+    @room = Room.new
+    @matrix = [[1 , 1, 1, 1], [1 , 1, 1, 1], [1 , 1, 1, 1], [1 , 1, 1, 1]]
+
+  end
+
   private
 
   def room_params
