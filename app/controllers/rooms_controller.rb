@@ -34,6 +34,16 @@ class RoomsController < ApplicationController
 
   end
 
+  def create
+    @room = Room.new(room_params)
+    binding.pry
+    if @room.save
+      redirect_to @room, notice: "Room was successfully created."
+    else
+      render :new
+    end
+  end
+
   private
 
   def room_params
