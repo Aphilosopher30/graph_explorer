@@ -5,6 +5,5 @@ class Room
   property :description, type: String
   property :floor_plan, type: String, default: '{"arrays": [[1, 1, 1], [1, 1, 1], [1, 1, 1]]}'
 
-  has_many :both, :portals, type: :PORTAL, model_class: :Room
-
+  has_many :both, :portals, model_class: :Room, rel_class: :Portal
 end
