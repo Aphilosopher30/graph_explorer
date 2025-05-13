@@ -9,4 +9,8 @@ class Portal
   property :locked, type: Boolean
   property :kind, type: String
 
+  def connections
+    [ self.from_node, self.to_node]
+  end
+
 end
