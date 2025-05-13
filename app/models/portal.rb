@@ -13,4 +13,15 @@ class Portal
     [ self.from_node, self.to_node]
   end
 
+    def to_node_from(present_node)
+      if self.to_node == present_node
+        self.from_node
+      elsif self.from_node ==  present_node
+        self.to_node
+      else
+        return "ERROR"
+      end
+
+    end
+
 end
