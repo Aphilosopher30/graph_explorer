@@ -10,9 +10,7 @@
     <li>
 
       <% adjacent_room = passage_way.to_node_from(@room)%>
-
-      <p> <%= link_to adjacent_room.name, room_path(adjacent_room.id) %> </p>
-      <p> <% passage_way.description %></p>
+      <inline> <%= link_to adjacent_room.name, room_path(adjacent_room.id) %> </inline>: <%= passage_way.description %>
     </li>
   <% end %>
 </ul>
