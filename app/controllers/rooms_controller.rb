@@ -5,11 +5,11 @@ class RoomsController < ApplicationController
 
   def show
     @room = Room.find(params[:id])
-    @adjacent_rooms = @room.portals
+    # @adjacent_rooms = @room.portals
+    @passage_ways = @room.passage_ways
 
     floor_plan = JSON.parse(@room.floor_plan)
     @matrix = floor_plan["arrays"]
-
   end
 
   def edit

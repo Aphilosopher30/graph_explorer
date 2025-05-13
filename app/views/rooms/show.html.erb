@@ -6,9 +6,13 @@
 <p><%= "Doorways/Passages" %></p>
 
 <ul>
-  <% @adjacent_rooms.each do |adjacent_room| %>
+  <% @passage_ways.each do |passage_way| %>
     <li>
-      <p> <%= link_to adjacent_room.name, room_path(adjacent_room) %> </p>
+
+      <% adjacent_room = passage_way.to_node_from(@room)%>
+
+      <p> <%= link_to adjacent_room.name, room_path(adjacent_room.id) %> </p>
+      <p> <% passage_way.description %></p>
     </li>
   <% end %>
 </ul>
