@@ -13,6 +13,23 @@
 
   <%= form.hidden_field :floor_plan, value: "{\"arrays\": #{@matrix}", id: "matrix_data_field" %>
 
+  <br>
+  <br>
+
+  <div id="doorways-container">
+    <!-- Doorways will be added here dynamically -->
+  </div>
+
+  <!-- Hidden container for doorway form fields -->
+  <div id="doorway-fields-container">
+    <!-- Doorway hidden fields will be added here -->
+  </div>
+
+  <button type="button" id="doorwayButton" onclick="addDoorwayField()" class="matrix-button">Add Doorway</button>
+
+  <br>
+  <br>
+
   <div>
     <%= form.submit "Save Changes" %>
   </div>
@@ -45,10 +62,152 @@
 
 <script>
   var matrix = <%= @matrix.to_json %>
+  var doorwayCount = 0;
 
   document.addEventListener("DOMContentLoaded", function() {
     document.getElementById("matrix_data_field").value = JSON.stringify({ arrays: matrix });
   });
+
+  function addDoorwayField() {
+    const doorwaysContainer = document.getElementById('doorways-container');
+    const doorwayFieldsContainer = document.getElementById('doorway-fields-container');
+    const doorwayId = doorwayCount++;
+
+
+    // Create visual doorway input fields
+    const doorwayDiv = document.createElement('div');
+    doorwayDiv.className = 'doorway-field';
+    doorwayDiv.id = `doorway-${doorwayId}`;
+    doorwayDiv.style.marginBottom = '15px';
+
+    // Create the doorway type dropdown
+    const selectLabel = document.createElement('label');
+    selectLabel.textContent = 'Doorway kind: ';
+
+    const select = document.createElement('select');
+    select.id = `doorway_kind_visible_${doorwayId}`;
+    select.onchange = function() { updateDoorwayHiddenFields(doorwayId); };
+
+    const option1 = document.createElement('option');
+    option1.value = 'standard';
+    option1.textContent = 'Standard';
+
+    const option2 = document.createElement('option');
+    option2.value = 'arch';
+    option2.textContent = 'Arch';
+
+    const option3 = document.createElement('option');
+    option3.value = 'hidden';
+    option3.textContent = 'Hidden';
+
+    select.appendChild(option1);
+    select.appendChild(option2);
+    select.appendChild(option3);
+
+    // Create the description field
+    const descLabel = document.createElement('label');
+    descLabel.textContent = ' Description: ';
+    descLabel.style.marginLeft = '10px';
+
+    const descInput = document.createElement('input');
+    descInput.type = 'text';
+    descInput.id = `doorway_description_visible_${doorwayId}`;
+    descInput.placeholder = 'Enter doorway description';
+    descInput.onchange = function() { updateDoorwayHiddenFields(doorwayId); };
+    descInput.onkeyup = function() { updateDoorwayHiddenFields(doorwayId); };
+
+    const lockedLabel = document.createElement('label');
+    lockedLabel.textContent = ' Locked? ';
+    lockedLabel.style.marginLeft = '10px';
+
+    const lockedChecked = document.createElement('input');
+    lockedChecked.type = 'checkbox';
+    lockedChecked.value = 'true'
+    lockedChecked.id = `doorway_locked_visible_${doorwayId}`;
+    lockedChecked.onclick = function() { this.value = this.checked };
+    lockedChecked.onchange = function() { updateDoorwayHiddenFields(doorwayId);};
+
+    // Create remove button
+    const removeButton = document.createElement('button');
+    removeButton.type = 'button';
+    removeButton.textContent = 'Remove';
+    removeButton.className = 'remove-doorway-button';
+    removeButton.onclick = function() { removeDoorway(doorwayId); };
+    removeButton.style.marginLeft = '10px';
+
+    // Append all elements to the doorway div
+    doorwayDiv.appendChild(selectLabel);
+    doorwayDiv.appendChild(select);
+    doorwayDiv.appendChild(descLabel);
+    doorwayDiv.appendChild(descInput);
+    doorwayDiv.appendChild(lockedLabel);
+    doorwayDiv.appendChild(lockedChecked);
+    doorwayDiv.appendChild(removeButton);
+
+    // Append the doorway div to the container
+    doorwaysContainer.appendChild(doorwayDiv);
+
+    // Create hidden form fields for this doorway
+    const kindHiddenField = document.createElement('input');
+    kindHiddenField.type = 'hidden';
+    kindHiddenField.name = `doorways[${doorwayId}][kind]`;
+    kindHiddenField.id = `doorway_kind_${doorwayId}`;
+    kindHiddenField.value = 'standard'; // Default value
+
+    const descHiddenField = document.createElement('input');
+    descHiddenField.type = 'hidden';
+    descHiddenField.name = `doorways[${doorwayId}][description]`;
+    descHiddenField.id = `doorway_description_${doorwayId}`;
+    descHiddenField.value = '';
+
+    const lockedHiddenField = document.createElement('input');
+    lockedHiddenField.type = 'hidden';
+    lockedHiddenField.name = `doorways[${doorwayId}][locked]`;
+    lockedHiddenField.id = `doorway_locked_${doorwayId}`;
+    lockedHiddenField.value = 'false';
+
+    doorwayFieldsContainer.appendChild(kindHiddenField);
+    doorwayFieldsContainer.appendChild(descHiddenField);
+    doorwayFieldsContainer.appendChild(lockedHiddenField);
+  }
+
+  function updateDoorwayHiddenFields(id) {
+    const kindVisible = document.getElementById(`doorway_kind_visible_${id}`);
+    const descVisible = document.getElementById(`doorway_description_visible_${id}`);
+    const lockedVisible = document.getElementById(`doorway_locked_visible_${id}`);
+    const kindHidden = document.getElementById(`doorway_kind_${id}`);
+    const descHidden = document.getElementById(`doorway_description_${id}`);
+    const lockedHidden = document.getElementById(`doorway_locked_${id}`);
+
+
+    if (kindVisible && kindHidden) {
+      kindHidden.value = kindVisible.value;
+    }
+
+    if (descVisible && descHidden) {
+      descHidden.value = descVisible.value;
+    }
+
+    console.log()
+    if (lockedVisible && lockedHidden) {
+      lockedHidden.value = lockedVisible.value;
+    }
+  }
+
+  function removeDoorway(id) {
+    // Remove visual element
+    const doorwayElement = document.getElementById(`doorway-${id}`);
+    if (doorwayElement) {
+      doorwayElement.remove();
+    }
+
+    // Remove hidden fields
+    const kindHidden = document.getElementById(`doorway_kind_${id}`);
+    const descHidden = document.getElementById(`doorway_description_${id}`);
+
+    if (kindHidden) kindHidden.remove();
+    if (descHidden) descHidden.remove();
+  }
 
   function updateButtonLabels() {
     const deleteMode = document.getElementById('deleteMode').checked;
@@ -206,5 +365,22 @@
   }
   .toggle-container input[type="checkbox"] {
     margin-right: 5px;
+  }
+  .doorway-field {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+  }
+  .remove-doorway-button {
+    padding: 5px 10px;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .remove-doorway-button:hover {
+    background-color: #d32f2f;
   }
 </style>
