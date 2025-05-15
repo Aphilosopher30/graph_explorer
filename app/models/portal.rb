@@ -7,7 +7,7 @@ class Portal
 
   property :description, type: String
   property :locked, type: Boolean
-  property :type, type: String
+  property :kind, type: String
 
   def connections
     [ self.from_node, self.to_node]
