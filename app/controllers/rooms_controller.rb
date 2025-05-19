@@ -14,12 +14,18 @@ class RoomsController < ApplicationController
 
   def edit
     @room = Room.find(params[:id])
+
+    @passage_ways = @room.passage_ways
+
     floor_plan = JSON.parse(@room.floor_plan)
     @matrix = floor_plan["arrays"]
   end
 
   def update
     @room = Room.find(params[:id])
+
+
+
 
     unknownRoom = Room.find("b1e07b5b-d339-4b7a-9a54-1081f038063f")
     doorways = params["doorways"]

@@ -11,6 +11,18 @@
     <%= form.text_area :description %>
   </div>
 
+  <ul>
+    <% @passage_ways.each do |passage_way| %>
+      <li>
+
+        <% adjacent_room = passage_way.to_node_from(@room)%>
+        <inline> <%=  adjacent_room.name  %> </inline>: <%= passage_way.description %>
+      </li>
+    <% end %>
+  </ul>
+
+
+
   <%= form.hidden_field :floor_plan, value: "{ \"arrays\": #{@matrix} }", id: "matrix_data_field" %>
 
   <br>
