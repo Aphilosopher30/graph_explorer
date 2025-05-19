@@ -22,9 +22,7 @@ class RoomsController < ApplicationController
     @room = Room.find(params[:id])
 
     unknownRoom = Room.find("b1e07b5b-d339-4b7a-9a54-1081f038063f")
-
     doorways = params["doorways"]
-
     if doorways != ""
       doorways.keys.each { | key |
         new_portal = Portal.new(to_node: unknownRoom, from_node: @room)
