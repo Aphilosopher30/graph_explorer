@@ -24,12 +24,9 @@ class RoomsController < ApplicationController
   def update
     @room = Room.find(params[:id])
 
-
-
-
     unknownRoom = Room.find("b1e07b5b-d339-4b7a-9a54-1081f038063f")
     doorways = params["doorways"]
-    if doorways != ""
+    if doorways != "" && doorways !=nil
       doorways.keys.each { | key |
         new_portal = Portal.new(to_node: unknownRoom, from_node: @room)
         doorway = doorways[key]
@@ -40,6 +37,20 @@ class RoomsController < ApplicationController
         new_portal.save
       }
     end
+    passages = params["passages"]
+    if passages != "" || passages != nil
+      passages.keys.each { | key |
+
+        passage = passages[key]
+        update_portal = Portal.find(passage["id"])
+
+        update_portal.kind = passage["kind"]
+        update_portal.description = passage["description"]
+        update_portal.locked = passage["locked"]
+        update_portal.save
+      }
+    end
+
 
     if @room.update(room_params)
       redirect_to room_path(@room), notice: "Room successfully updated."

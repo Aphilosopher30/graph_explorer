@@ -12,16 +12,35 @@
   </div>
 
   <ul>
-    <% @passage_ways.each do |passage_way| %>
+    <% @passage_ways.each_with_index do |passage_way, index| %>
       <li>
 
         <% adjacent_room = passage_way.to_node_from(@room)%>
-        <inline> <%=  adjacent_room.name  %> </inline>: <%= passage_way.description %>
+        <div id="passage-display-<%= index %>">
+          <inline> <%=  adjacent_room.name  %> </inline>: <%= passage_way.description %>
+          <button type="button" class="edit-passage-btn" onclick="editPassageway(<%= index %>, '<%= passage_way.id %>', '<%= adjacent_room.name %>', '<%= passage_way.description %>', '<%= passage_way.kind %>', <%= passage_way.locked? %>)">Edit</button>
+        </div>
+        <div id="passage-edit-<%= index %>" style="display: none;">
+          <input type="hidden" id="passage-id-<%= index %>" name="passages[<%= index %>][id]" value="<%= passage_way.id %>">
+          <label>To: </label><span><%= adjacent_room.name %></span>
+          <label style="margin-left: 10px;">Description: </label>
+          <input type="text" id="passage-desc-<%= index %>" name="passages[<%= index %>][description]" value="<%= passage_way.description %>">
+
+          <label style="margin-left: 10px;">Type: </label>
+          <select id="passage-kind-<%= index %>" name="passages[<%= index %>][kind]">
+            <option value="standard" <%= passage_way.kind == 'standard' ? 'selected' : '' %>>Standard</option>
+            <option value="arch" <%= passage_way.kind == 'arch' ? 'selected' : '' %>>Arch</option>
+            <option value="hidden" <%= passage_way.kind == 'hidden' ? 'selected' : '' %>>Hidden</option>
+          </select>
+
+          <label style="margin-left: 10px;">Locked: </label>
+          <input type="checkbox" id="passage-locked-<%= index %>" name="passages[<%= index %>][locked]" value="true" <%= passage_way.locked? ? 'checked' : '' %>>
+
+          <button type="button" onclick="cancelEdit(<%= index %>)">Cancel</button>
+        </div>
       </li>
     <% end %>
   </ul>
-
-
 
   <%= form.hidden_field :floor_plan, value: "{ \"arrays\": #{@matrix} }", id: "matrix_data_field" %>
 
@@ -79,6 +98,23 @@
   document.addEventListener("DOMContentLoaded", function() {
     document.getElementById("matrix_data_field").value = JSON.stringify({ arrays: matrix });
   });
+
+  // New functions for editing passageways
+  function editPassageway(index, id, name, description, kind, locked) {
+    document.getElementById(`passage-display-${index}`).style.display = 'none';
+    document.getElementById(`passage-edit-${index}`).style.display = 'block';
+
+    // Set values in the edit form (escape special characters in description)
+    document.getElementById(`passage-desc-${index}`).value = description.replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+    document.getElementById(`passage-kind-${index}`).value = kind;
+    document.getElementById(`passage-locked-${index}`).checked = locked;
+  }
+
+  function cancelEdit(index) {
+    // Just hide the edit form and show the display again without saving changes
+    document.getElementById(`passage-display-${index}`).style.display = 'block';
+    document.getElementById(`passage-edit-${index}`).style.display = 'none';
+  }
 
   function addDoorwayField() {
     const doorwaysContainer = document.getElementById('doorways-container');
@@ -183,6 +219,7 @@
     doorwayFieldsContainer.appendChild(lockedHiddenField);
   }
 
+  // Rest of the script remains the same
   function updateDoorwayHiddenFields(id) {
     const kindVisible = document.getElementById(`doorway_kind_visible_${id}`);
     const descVisible = document.getElementById(`doorway_description_visible_${id}`);
