@@ -14,6 +14,7 @@ class RoomsController < ApplicationController
 
   def edit
     @room = Room.find(params[:id])
+    @all_rooms = Room.all.reject { |r| r == @room }
 
     @passage_ways = @room.passage_ways
 
@@ -24,6 +25,7 @@ class RoomsController < ApplicationController
   def update
     @room = Room.find(params[:id])
 
+    # change default to having the portal lead from the room, to a special portal_node.
     unknownRoom = Room.find("b1e07b5b-d339-4b7a-9a54-1081f038063f")
     doorways = params["doorways"]
     if doorways != "" && doorways !=nil
@@ -37,12 +39,41 @@ class RoomsController < ApplicationController
         new_portal.save
       }
     end
+
     passages = params["passages"]
     if passages != "" || passages != nil
       passages.keys.each { | key |
 
         passage = passages[key]
-        update_portal = Portal.find(passage["id"])
+        new_room = Room.find(passage["to_room_id"])
+
+        portal = Portal.find(passage["id"])
+
+        # Use ActiveGraph to create the relationship and return its ID
+
+        # IF IT CHANGES THE STUFF\
+        filtered = portal.connections.reject{|x| x == @room }
+          if filtered.include?(new_room) == false
+
+          result = ActiveGraph::Base.query("
+            MATCH (a)-[r:PORTAL]->(b), (c)
+            WHERE id(r) = #{portal.id} AND c.uuid = '#{new_room.uuid}'
+            CREATE (a)-[new_rel:PORTAL {
+               description: r.description,
+               kind: r.kind,
+               locked: r.locked
+            }]->(c)
+            RETURN id(new_rel) AS new_relationship_id
+          ")
+          test_id = result.first["new_relationship_id"]
+
+          update_portal = Portal.find(test_id)
+
+          portal.destroy
+
+         else
+          update_portal = portal
+        end
 
         update_portal.kind = passage["kind"]
         update_portal.description = passage["description"]
@@ -74,11 +105,9 @@ class RoomsController < ApplicationController
   end
 
   private
+
   def room_params
     params.require(:room).permit(:name, :description, :floor_plan)
   end
 
-  # def portal_params
-  #   params.require(:doorways).permit(:kind, :description, :locked)
-  # end
 end

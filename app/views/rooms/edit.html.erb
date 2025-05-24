@@ -18,11 +18,20 @@
         <% adjacent_room = passage_way.to_node_from(@room)%>
         <div id="passage-display-<%= index %>">
           <inline> <%=  adjacent_room.name  %> </inline>: <%= passage_way.description %>
-          <button type="button" class="edit-passage-btn" onclick="editPassageway(<%= index %>, '<%= passage_way.id %>', '<%= adjacent_room.name %>', '<%= passage_way.description %>', '<%= passage_way.kind %>', <%= passage_way.locked? %>)">Edit</button>
+          <button type="button" class="edit-passage-btn" onclick="editPassageway(<%= index %>, '<%= passage_way.id %>', '<%= adjacent_room.id %>', '<%= passage_way.description %>', '<%= passage_way.kind %>', <%= passage_way.locked? %>)">Edit</button>
         </div>
         <div id="passage-edit-<%= index %>" style="display: none;">
+
+          <label style="margin-left: 10px;">To Room:</label>
+          <select id="passage-to-room-<%= index %>" name="passages[<%= index %>][to_room_id]">
+            <% @all_rooms.each do |room| %>
+              <option value="<%= room.id %>" <%= adjacent_room == room ? 'selected' : '' %>><%= room.name %></option>
+            <% end %>
+          </select>
+
+          <!-- memo to self check that the line below is still nessesary? -->
           <input type="hidden" id="passage-id-<%= index %>" name="passages[<%= index %>][id]" value="<%= passage_way.id %>">
-          <label>To: </label><span><%= adjacent_room.name %></span>
+
           <label style="margin-left: 10px;">Description: </label>
           <input type="text" id="passage-desc-<%= index %>" name="passages[<%= index %>][description]" value="<%= passage_way.description %>">
 
@@ -108,6 +117,9 @@
     document.getElementById(`passage-desc-${index}`).value = description.replace(/&quot;/g, '"').replace(/&#39;/g, "'");
     document.getElementById(`passage-kind-${index}`).value = kind;
     document.getElementById(`passage-locked-${index}`).checked = locked;
+
+    const toRoomSelect = document.getElementById(`passage-to-room-${index}`);
+      if (toRoomSelect) { toRoomSelect.value = roomId; }
   }
 
   function cancelEdit(index) {
@@ -121,6 +133,25 @@
     const doorwayFieldsContainer = document.getElementById('doorway-fields-container');
     const doorwayId = doorwayCount++;
 
+
+    const toRoomLabel = document.createElement('label');
+    toRoomLabel.textContent = ' To Room: ';
+    toRoomLabel.style.marginLeft = '10px';
+
+    const toRoomSelect = document.createElement('select');
+    toRoomSelect.id = `doorway_to_room_visible_${doorwayId}`;
+
+    toRoomSelect.onchange = function () { updateDoorwayHiddenFields(doorwayId); };
+
+
+    const rooms = <%= raw @all_rooms.map { |room| "{ \"id\": \"#{room.id}\", \"name\": \"#{j room.name}\" }" }.to_json %>;
+    rooms.forEach(room => {
+      const opt = document.createElement('option');
+      room1 = JSON.parse(room)
+      opt.value = room1.id;
+      opt.textContent = room1.name;
+      toRoomSelect.appendChild(opt);
+    });
 
     // Create visual doorway input fields
     const doorwayDiv = document.createElement('div');
@@ -184,6 +215,9 @@
     removeButton.style.marginLeft = '10px';
 
     // Append all elements to the doorway div
+    doorwayDiv.appendChild(toRoomLabel);
+    doorwayDiv.appendChild(toRoomSelect);
+
     doorwayDiv.appendChild(selectLabel);
     doorwayDiv.appendChild(select);
     doorwayDiv.appendChild(descLabel);
@@ -196,6 +230,12 @@
     doorwaysContainer.appendChild(doorwayDiv);
 
     // Create hidden form fields for this doorway
+    const toRoomHiddenField = document.createElement('input');
+    toRoomHiddenField.type = 'hidden';
+    toRoomHiddenField.name = `doorways[${doorwayId}][to_room_id]`;
+    toRoomHiddenField.id = `doorway_to_room_${doorwayId}`;
+    toRoomHiddenField.value = '';
+
     const kindHiddenField = document.createElement('input');
     kindHiddenField.type = 'hidden';
     kindHiddenField.name = `doorways[${doorwayId}][kind]`;
@@ -214,6 +254,7 @@
     lockedHiddenField.id = `doorway_locked_${doorwayId}`;
     lockedHiddenField.value = 'false';
 
+    doorwayFieldsContainer.appendChild(toRoomHiddenField);
     doorwayFieldsContainer.appendChild(kindHiddenField);
     doorwayFieldsContainer.appendChild(descHiddenField);
     doorwayFieldsContainer.appendChild(lockedHiddenField);
@@ -221,13 +262,20 @@
 
   // Rest of the script remains the same
   function updateDoorwayHiddenFields(id) {
+    const toRoomVisible = document.getElementById(`doorway_to_room_visible_${id}`);
     const kindVisible = document.getElementById(`doorway_kind_visible_${id}`);
     const descVisible = document.getElementById(`doorway_description_visible_${id}`);
     const lockedVisible = document.getElementById(`doorway_locked_visible_${id}`);
+
+    const toRoomHidden = document.getElementById(`doorway_to_room_${id}`);
     const kindHidden = document.getElementById(`doorway_kind_${id}`);
     const descHidden = document.getElementById(`doorway_description_${id}`);
     const lockedHidden = document.getElementById(`doorway_locked_${id}`);
 
+
+    if (toRoomVisible && toRoomHidden) {
+      toRoomHidden.value = toRoomVisible.value;
+    }
 
     if (kindVisible && kindHidden) {
       kindHidden.value = kindVisible.value;
