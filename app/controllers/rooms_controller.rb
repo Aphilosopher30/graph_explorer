@@ -82,6 +82,10 @@ class RoomsController < ApplicationController
       }
     end
 
+    passage_deleations = params["passages_to_delete"]
+    if passage_deleations != nil
+      passage_deleations.each { | id | delete_portal = Portal.find(id); delete_portal.destroy }
+    end
 
     if @room.update(room_params)
       redirect_to room_path(@room), notice: "Room successfully updated."
