@@ -19,6 +19,7 @@
         <div id="passage-display-<%= index %>">
           <inline> <%=  adjacent_room.name  %> </inline>: <%= passage_way.description %>
           <button type="button" class="edit-passage-btn" onclick="editPassageway(<%= index %>, '<%= passage_way.id %>', '<%= adjacent_room.id %>', '<%= passage_way.description %>', '<%= passage_way.kind %>', <%= passage_way.locked? %>)">Edit</button>
+          <button type="button" class="delete-passage-btn" onclick="deletePassageway(<%= index %>, '<%= passage_way.id %>')">Delete</button>
         </div>
         <div id="passage-edit-<%= index %>" style="display: none;">
 
@@ -46,6 +47,7 @@
           <input type="checkbox" id="passage-locked-<%= index %>" name="passages[<%= index %>][locked]" value="true" <%= passage_way.locked? ? 'checked' : '' %>>
 
           <button type="button" onclick="cancelEdit(<%= index %>)">Cancel</button>
+          <button type="button" onclick="deletePassageway(<%= index %>, '<%= passage_way.id %>')">Delete</button>
         </div>
       </li>
     <% end %>
@@ -127,6 +129,21 @@
     document.getElementById(`passage-display-${index}`).style.display = 'block';
     document.getElementById(`passage-edit-${index}`).style.display = 'none';
   }
+
+  function deletePassageway(index, passageId) {
+    if (confirm('Are you sure you want to delete this doorway?')) {
+      // Create a hidden field to mark this passage for deletion
+      const hiddenField = document.createElement('input');
+      hiddenField.type = 'hidden';
+      hiddenField.name = 'passages_to_delete[]';
+      hiddenField.value = passageId;
+      document.querySelector('form').appendChild(hiddenField);
+
+      // Hide the passage in the UI
+      document.querySelector(`li:nth-child(${index + 1})`).style.display = 'none';
+    }
+  }
+
 
   function addDoorwayField() {
     const doorwaysContainer = document.getElementById('doorways-container');
