@@ -13,6 +13,8 @@
 ---
 :constraints:
 - CREATE CONSTRAINT `constraint_242f0690` FOR (n:`Person`) REQUIRE (n.`uuid`) IS UNIQUE
+- CREATE CONSTRAINT `constraint_7ed8b505` FOR (n:`PortalNode`) REQUIRE (n.`uuid`)
+  IS UNIQUE
 - CREATE CONSTRAINT `constraint_d60923c9` FOR (n:`Room`) REQUIRE (n.`uuid`) IS UNIQUE
 - CREATE CONSTRAINT `constraint_dbcee0a4` FOR (n:`ActiveGraph::Migrations::SchemaMigration`)
   REQUIRE (n.`migration_id`) IS UNIQUE
@@ -20,3 +22,4 @@
 :versions:
 - '20250505211454'
 - '20250505213049'
+- '20250529162616'
