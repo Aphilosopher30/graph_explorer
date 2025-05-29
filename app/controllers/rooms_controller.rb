@@ -30,13 +30,13 @@ class RoomsController < ApplicationController
     doorways = params["doorways"]
     if doorways != "" && doorways !=nil
       doorways.keys.each { | key |
-        new_portal = Portal.new(to_node: unknownRoom, from_node: @room)
+        # new_portal = Portal.new(to_node: unknownRoom, from_node: @room)
         doorway = doorways[key]
-
-        new_portal.kind = doorway["kind"]
-        new_portal.description = doorway["description"]
-        new_portal.locked = doorway["locked"]
-        new_portal.save
+        PortalNode.create(room: @room, description: doorway["description"], kind: doorway["kind"], locked: doorway["locked"])
+        # new_portal.kind = doorway["kind"]
+        # new_portal.description = doorway["description"]
+        # new_portal.locked = doorway["locked"]
+        # new_portal.save
       }
     end
 
