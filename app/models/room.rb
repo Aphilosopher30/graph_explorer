@@ -7,6 +7,8 @@ class Room
 
   has_many :both, :portals, model_class: :Room, rel_class: :Portal
 
+  has_many :out, :portal_nodes, model_class: :PortalNode, type: :UNKNOWNPASSAGE
+
   def passage_ways()
     # @portals = @room.portals.where(to_node: adjacent_room)
     self.query_as(:room).match('(room)-[r]-(n)').pluck('r')
