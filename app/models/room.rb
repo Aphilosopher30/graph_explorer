@@ -11,6 +11,7 @@ class Room
 
   def passage_ways()
     # @portals = @room.portals.where(to_node: adjacent_room)
-    self.query_as(:room).match('(room)-[r]-(n)').pluck('r')
+    # self.query_as(:room).match('(room)-[r]-(n)').pluck('r')
+    self.query_as(:room).match('(room)-[r:PORTAL]-(n)').pluck('r')
   end
 end
