@@ -11,4 +11,6 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   resources :rooms, only: [:index, :edit, :update, :show, :new, :create, :destroy]
+
+  get '/explore/:id', to: 'explore#enter_room'
 end
