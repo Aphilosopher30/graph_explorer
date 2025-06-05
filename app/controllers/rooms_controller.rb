@@ -5,6 +5,7 @@ class RoomsController < ApplicationController
 
   def show
     @room = Room.find(params[:id])
+    @mystery_rooms = @room.portal_nodes
     # @adjacent_rooms = @room.portals
     @passage_ways = @room.passage_ways
 
