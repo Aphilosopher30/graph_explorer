@@ -1,0 +1,301 @@
+<h1>Create a New Room</h1>
+
+<!-- Toggle Button -->
+<button type="button" id="toggleFormButton" onclick="toggleForms()" class="toggle-form-button">Switch to Select Existing Room</button>
+
+<!-- Original Form Container -->
+<div id="originalForm">
+  <%= form_with(model: @room, local: true) do |form| %>
+    <div>
+      <%= form.label :name %>
+      <%= form.text_field :name %>
+    </div>
+
+    <div>
+      <%= form.label :description %>
+      <%= form.text_area :description %>
+    </div>
+
+    <%= form.hidden_field :floor_plan, value: "{\"arrays\": #{@matrix} }", id: "matrix_data_field" %>
+
+    <div>
+      <%= form.submit "Create Room" %>
+    </div>
+  <% end %>
+
+  <br>
+  <br>
+
+  <div class="matrix-container" style="border: 2px solid #333; padding: 10px; display: inline-block;">
+    <div id="matrix-grid" class="matrix-grid" style="display: grid; grid-template-columns: repeat(<%= @matrix[0].size %>, 50px); gap: 5px;">
+      <% @matrix.each_with_index do |row, row_index| %>
+        <% row.each_with_index do |cell, col_index| %>
+          <div class="square" data-row="<%= row_index %>" data-col="<%= col_index %>" style="width: 50px; height: 50px; background-color: <%= cell == 1 ? '#ffffff' : '#000000' %>;" onclick="toggleSquare(this)"></div>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="matrix-controls" style="margin-bottom: 10px;">
+    <button type="button" id="rowButton" onclick="handleRowAction()" class="matrix-button">Add Row</button>
+    <button type="button" id="colButton" onclick="handleColumnAction()" class="matrix-button">Add Column</button>
+
+    <div class="toggle-container" style="margin-bottom: 10px;">
+      <input type="checkbox" id="deleteMode" onchange="updateButtonLabels()">
+      <label for="deleteMode">Delete Mode</label>
+    </div>
+  </div>
+</div>
+
+<!-- New Dropdown Form Container -->
+<div id="dropdownForm" style="display: none;">
+
+  <%= form_with(url: "/explore/existing_room/#{@portal_node.id}", local: true, method: :post) do |form| %>
+    <div>
+      <%= form.label :room_id, "Which room do you want to choose?" %>
+      <%= form.select :room_id,
+          options_from_collection_for_select(@rooms, :id, :name),
+          { prompt: 'Select a room...' },
+          { class: 'room-dropdown', id: 'room-select', onchange: 'updateFormAction()' } %>
+    </div>
+
+    <div>
+      <%= form.submit "Submit Old Room", id: "explore-button", disabled: true %>
+    </div>
+  <% end %>
+</div>
+
+<script>
+  var matrix = <%= @matrix.to_json %>
+  var showingOriginalForm = true;
+
+  document.addEventListener("DOMContentLoaded", function() {
+    document.getElementById("matrix_data_field").value = JSON.stringify({ arrays: matrix });
+  });
+
+  function toggleForms() {
+    const originalForm = document.getElementById('originalForm');
+    const dropdownForm = document.getElementById('dropdownForm');
+    const toggleButton = document.getElementById('toggleFormButton');
+
+    if (showingOriginalForm) {
+      originalForm.style.display = 'none';
+      dropdownForm.style.display = 'block';
+      toggleButton.textContent = 'Switch to Create New Room';
+    } else {
+      originalForm.style.display = 'block';
+      dropdownForm.style.display = 'none';
+      toggleButton.textContent = 'Switch to Select Existing Room';
+    }
+
+    showingOriginalForm = !showingOriginalForm;
+  }
+
+  function updateFormAction() {
+    const select = document.getElementById('room-select');
+    // const form = document.getElementById('room-selection-form');
+    const submitButton = document.getElementById('explore-button');
+
+    // console.log(@portal_node)
+    console.log(select.value)
+
+    if (select.value && select.value !== '') {
+      // form.action = '/explore/' + select.value;
+      submitButton.disabled = false;
+    } else {
+      // form.action = '/explore/';
+      submitButton.disabled = true;
+    }
+  }
+
+  function updateButtonLabels() {
+    const deleteMode = document.getElementById('deleteMode').checked;
+    const rowButton = document.getElementById('rowButton');
+    const colButton = document.getElementById('colButton');
+
+    if (deleteMode) {
+      rowButton.textContent = 'Delete Row';
+      rowButton.classList.add('delete-mode');
+      colButton.textContent = 'Delete Column';
+      colButton.classList.add('delete-mode');
+    } else {
+      rowButton.textContent = 'Add Row';
+      rowButton.classList.remove('delete-mode');
+      colButton.textContent = 'Add Column';
+      colButton.classList.remove('delete-mode');
+    }
+  }
+
+  function handleRowAction() {
+    const deleteMode = document.getElementById('deleteMode').checked;
+    if (deleteMode) {
+      deleteRow();
+    } else {
+      addRow();
+    }
+  }
+
+  function handleColumnAction() {
+    const deleteMode = document.getElementById('deleteMode').checked;
+    if (deleteMode) {
+      deleteColumn();
+    } else {
+      addColumn();
+    }
+  }
+
+  function toggleSquare(square) {
+    const row = square.getAttribute('data-row');
+    const column = square.getAttribute('data-col');
+    matrix[row][column] = matrix[row][column] == 0 ? 1 : 0;
+
+    const currentColor = square.style.backgroundColor;
+    square.style.backgroundColor = (currentColor === 'rgb(0, 0, 0)') ? '#ffffff' : '#000000';
+
+    updateHiddenField();
+  }
+
+  function addRow() {
+    const numCols = matrix[0].length;
+
+    const newRow = Array(numCols).fill(0);
+
+    matrix.push(newRow);
+
+    redrawGrid();
+
+    updateHiddenField();
+  }
+
+  function deleteRow() {
+    if (matrix.length <= 1) {
+      alert("Cannot delete the last row!");
+      return;
+    }
+
+    matrix.pop();
+
+    redrawGrid();
+
+    updateHiddenField();
+  }
+
+  function addColumn() {
+    for (let i = 0; i < matrix.length; i++) {
+      matrix[i].push(0);
+    }
+
+    redrawGrid();
+
+    updateHiddenField();
+  }
+
+  function deleteColumn() {
+    if (matrix[0].length <= 1) {
+      alert("Cannot delete the last column!");
+      return;
+    }
+
+    for (let i = 0; i < matrix.length; i++) {
+      matrix[i].pop();
+    }
+
+    redrawGrid();
+
+    updateHiddenField();
+  }
+
+  function redrawGrid() {
+    const gridElement = document.getElementById('matrix-grid');
+
+    gridElement.style.gridTemplateColumns = `repeat(${matrix[0].length}, 50px)`;
+
+    gridElement.innerHTML = '';
+
+    for (let rowIndex = 0; rowIndex < matrix.length; rowIndex++) {
+      for (let colIndex = 0; colIndex < matrix[rowIndex].length; colIndex++) {
+        const square = document.createElement('div');
+        square.className = 'square';
+        square.setAttribute('data-row', rowIndex);
+        square.setAttribute('data-col', colIndex);
+        square.style.width = '50px';
+        square.style.height = '50px';
+        square.style.backgroundColor = matrix[rowIndex][colIndex] == 1 ? '#ffffff' : '#000000';
+        square.onclick = function() { toggleSquare(this); };
+
+        gridElement.appendChild(square);
+      }
+    }
+  }
+
+  function updateHiddenField() {
+    document.getElementById("matrix_data_field").value = JSON.stringify({ arrays: matrix });
+  }
+</script>
+
+<style>
+  .matrix-grid {
+    margin: 20px auto;
+  }
+  .square {
+    border: 1px solid #ccc;
+    cursor: pointer;
+  }
+  .matrix-button {
+    padding: 8px 16px;
+    margin-right: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .matrix-button:hover {
+    background-color: #45a049;
+  }
+  .delete-mode {
+    background-color: #f44336;
+  }
+  .delete-mode:hover {
+    background-color: #d32f2f;
+  }
+  .toggle-container {
+    margin-bottom: 10px;
+  }
+  .toggle-container input[type="checkbox"] {
+    margin-right: 5px;
+  }
+  .toggle-form-button {
+    padding: 10px 20px;
+    margin-bottom: 20px;
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  .toggle-form-button:hover {
+    background-color: #0b7dda;
+  }
+  .room-dropdown {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  #dropdownForm div {
+    margin-bottom: 15px;
+  }
+  #dropdownForm label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+  #explore-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+  }
+</style>
