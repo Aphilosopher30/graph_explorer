@@ -3,14 +3,22 @@
 
 <%= simple_format(@room.description) %>
 
-<p><%= "Doorways/Passages" %></p>
+<p><%= "Doorways/Portals " %></p>
 
 <ul>
   <% @passage_ways.each do |passage_way| %>
     <li>
-
       <% adjacent_room = passage_way.to_node_from(@room)%>
       <inline> <%= link_to adjacent_room.name, room_path(adjacent_room.id) %> </inline>: <%= passage_way.description %>
+    </li>
+  <% end %>
+</ul>
+
+<p><%= "unknown portlas" %></p>
+<ul>
+  <% @mystery_rooms.each do |mystery_room| %>
+    <li>
+      <inline> <%= link_to mystery_room.kind, "/explore/#{mystery_room.id}", method: :get %> </inline>: <%= mystery_room.description %>
     </li>
   <% end %>
 </ul>
