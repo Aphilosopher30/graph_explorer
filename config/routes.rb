@@ -13,4 +13,6 @@ Rails.application.routes.draw do
   resources :rooms, only: [:index, :edit, :update, :show, :new, :create, :destroy]
 
   get '/explore/:id', to: 'explore#enter_room'
+  post '/explore/:id', to: 'explore#create_new_room'
+  post '/explore/existing_room/:id', to: 'explore#connect_existing_room'
 end
