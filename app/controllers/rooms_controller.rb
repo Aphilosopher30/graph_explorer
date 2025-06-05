@@ -14,8 +14,12 @@ class RoomsController < ApplicationController
   end
 
   def edit
+    #BUG! IF YOU add and then delete a portal node, it still makes the portal node. fix this!
+
     @room = Room.find(params[:id])
     @all_rooms = Room.all.reject { |r| r == @room }
+
+    @mystery_rooms = @room.portal_nodes
 
     @passage_ways = @room.passage_ways
 
