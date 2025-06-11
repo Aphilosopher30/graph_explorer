@@ -14,7 +14,6 @@ class RoomsController < ApplicationController
   end
 
   def edit
-    #BUG! IF YOU add and then delete a portal node, it still makes the portal node. fix this!
 
     @room = Room.find(params[:id])
     @all_rooms = Room.all.reject { |r| r == @room }
@@ -30,23 +29,16 @@ class RoomsController < ApplicationController
   def update
     @room = Room.find(params[:id])
 
-    # change default to having the portal lead from the room, to a special portal_node.
-    unknownRoom = Room.find("b1e07b5b-d339-4b7a-9a54-1081f038063f")
     doorways = params["doorways"]
     if doorways != "" && doorways !=nil
       doorways.keys.each { | key |
-        # new_portal = Portal.new(to_node: unknownRoom, from_node: @room)
         doorway = doorways[key]
         PortalNode.create(room: @room, description: doorway["description"], kind: doorway["kind"], locked: doorway["locked"])
-        # new_portal.kind = doorway["kind"]
-        # new_portal.description = doorway["description"]
-        # new_portal.locked = doorway["locked"]
-        # new_portal.save
       }
     end
 
     passages = params["passages"]
-    if passages != "" || passages != nil
+    if passages != "" && passages != nil
       passages.keys.each { | key |
 
         passage = passages[key]
@@ -55,8 +47,7 @@ class RoomsController < ApplicationController
         portal = Portal.find(passage["id"])
 
         # Use ActiveGraph to create the relationship and return its ID
-
-        # IF IT CHANGES THE STUFF\
+        # IF IT CHANGES THE STUFF 
         filtered = portal.connections.reject{|x| x == @room }
           if filtered.include?(new_room) == false
 

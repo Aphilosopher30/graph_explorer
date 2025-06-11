@@ -303,7 +303,6 @@
       descHidden.value = descVisible.value;
     }
 
-    console.log()
     if (lockedVisible && lockedHidden) {
       lockedHidden.value = lockedVisible.value;
     }
@@ -319,9 +318,13 @@
     // Remove hidden fields
     const kindHidden = document.getElementById(`doorway_kind_${id}`);
     const descHidden = document.getElementById(`doorway_description_${id}`);
+    const lockedHidden = document.getElementById(`doorway_locked_${id}`);
+    const toRoomHidden = document.getElementById(`doorway_to_room_${id}`);
 
     if (kindHidden) kindHidden.remove();
     if (descHidden) descHidden.remove();
+    if (lockedHidden) lockedHidden.remove();
+    if (toRoomHidden) toRoomHidden.remove();
   }
 
   function updateButtonLabels() {
