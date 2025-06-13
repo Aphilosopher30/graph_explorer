@@ -27,6 +27,7 @@ class RoomsController < ApplicationController
   end
 
   def update
+    binding.pry 
     @room = Room.find(params[:id])
 
     doorways = params["doorways"]
@@ -47,7 +48,7 @@ class RoomsController < ApplicationController
         portal = Portal.find(passage["id"])
 
         # Use ActiveGraph to create the relationship and return its ID
-        # IF IT CHANGES THE STUFF 
+        # IF IT CHANGES THE STUFF
         filtered = portal.connections.reject{|x| x == @room }
           if filtered.include?(new_room) == false
 
